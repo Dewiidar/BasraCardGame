@@ -95,6 +95,7 @@ img, input {
   width: 100%;
 }
 
-.hide {
+.hidden {
   visibility: hidden;
 }
+

@@ -3,7 +3,7 @@
     var model = {
         player1: {
             score: 0,
-            cards: [{ name: "1_of_clubs", value: 1 }]
+            cards: []
         },
         player2: {
             score: 0,
@@ -12,7 +12,10 @@
         tableCards: [],
         turn: "player1",
         round: 1,
-        playedCard: null,
+        chosenCard: { 
+            name: null, 
+            value: null 
+        },
         randomCard: null,
         deck: [
             { name: "1_of_clubs", value: 1 },
@@ -77,62 +80,140 @@
         init: function () {
             // set start values of the model & trigger the init function of the view
 
+            // Adding four random cards to player1,2 
+
+            for (var j = 1; j < 3; j++) {
+                // adding 4 cards per player
+                for (var i = 0; i < 4; i++) {
+                    controller.getRandomCard(model.deck);
+                    controller.pushCardsToArray(model.randomCard, model[`player${j}`].cards);
+                    controller.spliceCardFromArray(model.randomCard, model.deck);
+                }
+            }
+
+            // adding cards to table
+            for (var i = 0; i < 4; i++) {
+                controller.getRandomCardWithoutJack(model.deck);
+                controller.pushCardsToArray(model.randomCard, model.tableCards);
+                controller.spliceCardFromArray(model.randomCard, model.deck);
+            }
+
+
+
+
+
             view.init();
         },
         createNewDeck: function () {
             // instead of hard coding the deck
         },
         getPlayerCards: function (num) {
-            return `model.player${num}.cards`; //Enter 1 or 2
+            return model[`player${num}`].cards; //Enter 1 or 2
+        },
+        getTableCards: function () {
+            return model.tableCards; // table cards
         },
         getRandomCard: function (array) {
-            var randomIndex = Math.floor(Math.random() * array.length); //4
+            var randomIndex = Math.floor(Math.random() * array.length);
             var randomCard = array[randomIndex];
             model.randomCard = randomCard;
         },
-        // getRandomCardWithoutJack: function () {
-
-        //     controller.getRandomCard(model.deck);
-        //     if (model.randomCard.name.includes("jack")) {
-        //         //get us another card
-        //         controller.getRandomCardWithoutJack();
-        //     } else {
-        //         controller.pushCardsToArray(model.randomCard, model.tableCards);
-        //     }
-        // },
         getRandomCardWithoutJack: function (array) {
+            controller.getRandomCard(array);
             while (model.randomCard.name.includes("jack")) {
-                controller.getRandomCard(array);
-                console.log(model.randomCard);
+                controller.getRandomCardWithoutJack(array);
             }
-            console.log(model.randomCard);
         },
         pushCardsToArray: function (card, array) {
-            array.push(model.randomCard);
-            model.randomCard = null;
+            array.push(card);
         },
         spliceCardFromArray: function (card, array) {
-            var cardIndex = array.indexOf(card);
+            // var cardIndex = array.indexOf(card);
+            var cardIndex = array.map(function (e) { return e.name; }).indexOf(card.name);
+            console.log(cardIndex); //testing
             array.splice(cardIndex, 1);
-            console.log(cardIndex); // testing
+        },
+        createHtmlCard: function (playerNum, containerDivSelector, array) {
+            var playedCardsContainer = containerDivSelector;
+            playedCardsContainer.innerHTML = '';
+            for (var i = 0; i < array.length; i++) {
+                var containerDiv = document.createElement('div');
+                containerDiv.id = `playerCardContainer${i + 1}`;
+                containerDiv.className = "cardStyle";
+
+                var newtag = document.createElement('input');
+                if (playerNum === "table") {
+                    newtag.id = "tableCardInput";
+                } else {
+                    newtag.id = "playerCardInput";
+                }
+                newtag.type = "image";
+                newtag.src = "images/" + array[i].name + ".png";
+                newtag.dataset.name = array[i].name;
+                newtag.dataset.value = array[i].value;
+                newtag.alt = "Card" + (i + 1);
+                containerDiv.appendChild(newtag);
+                console.log(containerDiv); //testing
+                playedCardsContainer.appendChild(containerDiv);
+            }
+        }, 
+        setChosenCard: function () {
+            
+        },
+        putCardOntable: function (card) {
+            // pushCardsToArray(card, model.tableCards);
+            console.dir(card);
+  
+            // //convert data attributes to an object properties and assign them to chosenCard in model
+            model.chosenCard.name = card.dataset.name;
+            model.chosenCard.value = card.dataset.value;
+   
+            console.log(model.chosenCard);
+            controller.pushCardsToArray(model.chosenCard, model.tableCards);
+
+            console.table(model.tableCards);
+            controller.spliceCardFromArray(model.chosenCard, model.player1.cards)
+
+            console.table(model.player1.cards);
+            view.render();
         }
 
     };
 
     var view = {
         init: function () {
-            //get dom elements
+
+            //get card container divs from the DOM
+            this.player1CardsContainerDiv = document.querySelector('#player1Cards');
+            this.player2CardsContainerDiv = document.querySelector('#player2Cards');
+            this.tableCardsContainerDiv = document.querySelector('#tableCards');
 
             //render the view
             this.render();
         },
         render: function () {
-            var jacksArray = [{ name: "jack_of_spades", value: "J" }, { name: "jack_of_hearts", value: "J" }, { name: "5_of_spades", value: 5 },
-                { name: "6_of_spades", value: 6 }];
-            var gettingFirstRandomCard = controller.getRandomCard(jacksArray);
-            var gettingRandomCard = controller.getRandomCardWithoutJack(jacksArray);
-            // console.log(gettingRandomCard);
-            
+            //get cards array from model
+            this.player1Cards = controller.getPlayerCards(1);
+            this.player2Cards = controller.getPlayerCards(2);
+            this.tableCards = controller.getTableCards();
+
+            //create node elements from the above arrays
+            controller.createHtmlCard(1, this.player1CardsContainerDiv, view.player1Cards);
+            controller.createHtmlCard(2, this.player2CardsContainerDiv, view.player2Cards);
+            controller.createHtmlCard('table', this.tableCardsContainerDiv, view.tableCards);
+
+            //get all players' input cards
+            this.playerInputCards = document.querySelectorAll('#playerCardInput');
+            console.log(this.playerInputCards); //testing
+
+            // EventListeners
+            this.playerInputCards.forEach(function (element) {
+                element.addEventListener('click', function () {
+                    controller.putCardOntable(element);
+                });
+            });
+
+
         }
     };
 
