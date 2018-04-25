@@ -1,0 +1,100 @@
+.parent {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.row1 {
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+}
+
+.pcCards {
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+}
+
+.pcCards img {
+  width: 60%;
+}
+
+.scoreContainer {
+  border-style: solid;
+  padding: 10px;
+  width: 130px;
+}
+
+.row2 {
+  flex: 3;
+  display: flex;
+  align-items: center;
+}
+
+.cardParent {
+  display: flex;
+  flex-direction: row;
+}
+
+.deck, .data {
+  flex: 1;
+  width: 50%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.deck img {
+  width: 80%;
+}
+
+.tableCards {
+  flex: 4;
+  height: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+  overflow: hidden;
+}
+
+.cardStyle, input {
+  margin: 10px;
+  width: 50%;
+  text-align: center;
+}
+
+.tableCard1 {
+  justify-content: center;
+}
+
+.row3 {
+  flex: 1;
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.playerCards {
+  margin: 0 auto;
+}
+
+img, input {
+  width: 100%;
+}
+
+.hide {
+  visibility: hidden;
+}

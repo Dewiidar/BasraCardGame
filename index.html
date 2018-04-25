@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Document</title>
+
+	<!-- Loading Bootstrap CSS CDN -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ"
+	 crossorigin="anonymous">
+
+	<!-- Loading Css main styles -->
+	<link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+	<div class="container">
+		<div class="parent">
+			<h1 class="text-info">
+				<strong>Basra Card Game</strong>
+			</h1>
+
+			<div class="row1 mt-4">
+				<div class="pcCards">
+					<div class="cardParent">
+						<div class="cardStyle tableCard1">
+							<img src="images/facedown.png" alt="Card 1">
+						</div>
+						<div class="cardStyle tableCard2">
+							<img src="images/facedown.png" alt="Card 2">
+						</div>
+						<div class="cardStyle tableCard3">
+							<img src="images/facedown.png" alt="Card 3">
+						</div>
+						<div class="cardStyle tableCard4">
+							<img src="images/facedown.png" alt="Card 4">
+						</div>
+					</div>
+				</div>
+				<div class="pcScore">
+					<div class="scoreContainer">
+						<p>Player 2</p>
+						<p>Score: 0</p>
+					</div>
+				</div>
+			</div>
+			<div class="row2 mb-5">
+				<div class="deck">
+					<div class="scoreContainer">
+						<p>
+							<strong>Deck</strong>
+						</p>
+						<img src="images/facedown.png" alt="Deck Cards">
+					</div>
+				</div>
+				<div class="tableCards">
+					<div class="cardParent">
+						<div class="cardStyle tableCard1">
+							<img src="images/facedown.png" id="tableCard1" alt="Card 1">
+						</div>
+						<div class="cardStyle tableCard2">
+							<img src="images/facedown.png" id="tableCard2" alt="Card 2">
+						</div>
+						<div class="cardStyle tableCard3">
+							<img src="images/facedown.png" id="tableCard3" alt="Card 3">
+						</div>
+						<div class="cardStyle tableCard4">
+							<img src="images/facedown.png" id="tableCard4" alt="Card 4">
+						</div>
+					</div>
+				</div>
+				<div class="data">
+					<div class="scoreContainer">
+						<p id="roundNumber">Round: 1</p>
+						<p>Turn: Player 1</p>
+					</div>
+				</div>
+			</div>
+			<div class="row3">
+				<div class="playerCards">
+					<div class="cardParent">
+						<div class="cardStyle tableCard1">
+							<input type=image src=images/facedown.png class="hideCard1" id="playerCard1" alt="Card 1">
+						</div>
+						<div class="cardStyle tableCard2">
+							<input type=image src=images/facedown.png class="hideCard2" id="playerCard2" alt="Card 2">
+						</div>
+						<div class="cardStyle tableCard3">
+							<input type=image src="images/facedown.png" class="hideCard3" id="playerCard3" alt="Card 3">
+						</div>
+						<div class="cardStyle tableCard4">
+							<input type="image" src="images/facedown.png" class="hideCard4" id="playerCard4" alt="Card 3">
+						</div>
+					</div>
+				</div>
+				<div class="playerScore">
+					<div class="scoreContainer">
+						<p>Player 1</p>
+						<p id="playerScores">Score: 0</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+	<!-- Loading jQuery CDN for Bootstap -->
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+	 crossorigin="anonymous"></script>
+
+	<!-- Loading tether for Bootstrap -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.3/js/tether.min.js"></script>
+
+	<!-- Loading Bootstrap JS CDN -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
+	 crossorigin="anonymous"></script>
+
+	<!-- Loading JS main scripts -->
+	<script type="text/javascript" src="js/script.js"></script>
+
+</body>
+
+</html>
