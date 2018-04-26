@@ -13,6 +13,7 @@
         turn: 1,
         round: 1,
         chosenCard: null,
+        chosenCardScore: 0,
         randomCard: null,
         deck: [
             { name: "1_of_clubs", value: 1 },
@@ -151,10 +152,18 @@
                 playedCardsContainer.appendChild(containerDiv);
             }
         },
+        convertToANumber: function (numberString) {
+            var parsed = parseFloat(numberString);
+            if (isNaN(parsed)) {
+                return numberString;
+            } else {
+                return parsed;
+            }
+        },
         putCardOntable: function (card) {
             // //convert data attributes to an object properties and assign them to chosenCard in model
             var chosenCardName = card.dataset.name;
-            var chosenCardValue = card.dataset.value;
+            var chosenCardValue = controller.convertToANumber(card.dataset.value);
             var chosenCard = {
                 name: chosenCardName,
                 value: chosenCardValue
@@ -179,17 +188,29 @@
         addEventListenerOnTheCardsOfTurn: function () {
             view[`player${model.turn}InputCards`].forEach(function (element) {
                 element.addEventListener('click', function (e) {
-                    // Do some stuff
+                    // Add card to table
                     controller.putCardOntable(e.target);
 
                     //change turn
                     controller.alternateTurn();
+                    controller.incrementRound();
                     view.render();
                 });
             });
         },
         compareChosenCardWithTableCards: function () {
-            
+
+        },
+        displayTurn: function (turnContainer) {
+            var turnContainerDiv = turnContainer;
+            turnContainerDiv.innerHTML = "Turn: Player" + model.turn;
+        },
+        displayRound: function (roundContainer) {
+            var roundContainerDiv = roundContainer;
+            roundContainerDiv.innerHTML = "Round: " +model.round;
+        },
+        incrementRound: function () {
+            model.round++;
         }
 
     };
@@ -201,6 +222,10 @@
             this.player1CardsContainerDiv = document.querySelector('#player1Cards');
             this.player2CardsContainerDiv = document.querySelector('#player2Cards');
             this.tableCardsContainerDiv = document.querySelector('#tableCards');
+
+            //get turn & round
+            this.turnContainerDiv = document.querySelector('#turn');
+            this.roundContainerDiv = document.querySelector('#round');
 
             //render the view
             this.render();
@@ -223,6 +248,10 @@
 
             // EventListeners
             controller.addEventListenerOnTheCardsOfTurn();
+
+            // Display turn
+            controller.displayTurn(this.turnContainerDiv);
+            controller.displayRound(this.roundContainerDiv);
         }
     };
 
