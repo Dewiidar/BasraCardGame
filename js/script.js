@@ -11,12 +11,9 @@
             cards: []
         },
         tableCards: [],
-        turn: "player1",
+        turn: 1,
         round: 1,
-        chosenCard: {
-            name: null,
-            value: null
-        },
+        chosenCard: null,
         randomCard: null,
         deck: [{ name: "1_of_clubs", value: 1 }, { name: "2_of_clubs", value: 2 }, { name: "3_of_clubs", value: 3 }, { name: "4_of_clubs", value: 4 }, { name: "5_of_clubs", value: 5 }, { name: "6_of_clubs", value: 6 }, { name: "7_of_clubs", value: 7 }, { name: "8_of_clubs", value: 8 }, { name: "9_of_clubs", value: 9 }, { name: "10_of_clubs", value: 10 }, { name: "jack_of_clubs", value: "J" }, { name: "king_of_clubs", value: "K" }, { name: "queen_of_clubs", value: "Q" }, { name: "1_of_diamonds", value: 1 }, { name: "2_of_diamonds", value: 2 }, { name: "3_of_diamonds", value: 3 }, { name: "4_of_diamonds", value: 4 }, { name: "5_of_diamonds", value: 5 }, { name: "6_of_diamonds", value: 6 }, { name: "7_of_diamonds", value: 7 }, { name: "8_of_diamonds", value: 8 }, { name: "9_of_diamonds", value: 9 }, { name: "10_of_diamonds", value: 10 }, { name: "jack_of_diamonds", value: "J" }, { name: "king_of_diamonds", value: "K" }, { name: "queen_of_diamonds", value: "Q" }, { name: "1_of_hearts", value: 1 }, { name: "2_of_hearts", value: 2 }, { name: "3_of_hearts", value: 3 }, { name: "4_of_hearts", value: 4 }, { name: "5_of_hearts", value: 5 }, { name: "6_of_hearts", value: 6 }, { name: "7_of_hearts", value: 7 }, { name: "8_of_hearts", value: 8 }, { name: "9_of_hearts", value: 9 }, { name: "10_of_hearts", value: 10 }, { name: "jack_of_hearts", value: "J" }, { name: "king_of_hearts", value: "K" }, { name: "queen_of_hearts", value: "Q" }, { name: "1_of_spades", value: 1 }, { name: "2_of_spades", value: 2 }, { name: "3_of_spades", value: 3 }, { name: "4_of_spades", value: 4 }, { name: "5_of_spades", value: 5 }, { name: "6_of_spades", value: 6 }, { name: "7_of_spades", value: 7 }, { name: "8_of_spades", value: 8 }, { name: "9_of_spades", value: 9 }, { name: "10_of_spades", value: 10 }, { name: "jack_of_spades", value: "J" }, { name: "king_of_spades", value: "K" }, { name: "queen_of_spades", value: "Q" }]
     };
@@ -73,7 +70,6 @@
             var cardIndex = array.map(function (e) {
                 return e.name;
             }).indexOf(card.name);
-            console.log(cardIndex); //testing
             array.splice(cardIndex, 1);
         },
         createHtmlCard: function (playerNum, containerDivSelector, array) {
@@ -87,8 +83,10 @@
                 var newtag = document.createElement('input');
                 if (playerNum === "table") {
                     newtag.id = "tableCardInput";
+                } else if (playerNum === 1) {
+                    newtag.id = "player1CardInput";
                 } else {
-                    newtag.id = "playerCardInput";
+                    newtag.id = "player2CardInput";
                 }
                 newtag.type = "image";
                 newtag.src = "images/" + array[i].name + ".png";
@@ -96,28 +94,47 @@
                 newtag.dataset.value = array[i].value;
                 newtag.alt = "Card" + (i + 1);
                 containerDiv.appendChild(newtag);
-                console.log(containerDiv); //testing
                 playedCardsContainer.appendChild(containerDiv);
             }
         },
-        setChosenCard: function () {},
         putCardOntable: function (card) {
-            // pushCardsToArray(card, model.tableCards);
-            console.dir(card);
-
             // //convert data attributes to an object properties and assign them to chosenCard in model
-            model.chosenCard.name = card.dataset.name;
-            model.chosenCard.value = card.dataset.value;
+            var chosenCardName = card.dataset.name;
+            var chosenCardValue = card.dataset.value;
+            var chosenCard = {
+                name: chosenCardName,
+                value: chosenCardValue
+            };
+            model.chosenCard = chosenCard;
 
-            console.log(model.chosenCard);
+            console.log(model.chosenCard); //testing
             controller.pushCardsToArray(model.chosenCard, model.tableCards);
 
-            console.table(model.tableCards);
-            controller.spliceCardFromArray(model.chosenCard, model.player1.cards);
+            console.table(model.tableCards); //testing
+            controller.spliceCardFromArray(model.chosenCard, model[`player${model.turn}`].cards);
 
-            console.table(model.player1.cards);
-            view.render();
-        }
+            console.table(model[`player${model.turn}`].cards); //testing
+        },
+        alternateTurn: function () {
+            if (model.turn === 1) {
+                model.turn = 2;
+            } else {
+                model.turn = 1;
+            }
+        },
+        addEventListenerOnTheCardsOfTurn: function () {
+            view[`player${model.turn}InputCards`].forEach(function (element) {
+                element.addEventListener('click', function (e) {
+                    // Do some stuff
+                    controller.putCardOntable(e.target);
+
+                    //change turn
+                    controller.alternateTurn();
+                    view.render();
+                });
+            });
+        },
+        compareChosenCardWithTableCards: function () {}
 
     };
 
@@ -143,16 +160,13 @@
             controller.createHtmlCard(2, this.player2CardsContainerDiv, view.player2Cards);
             controller.createHtmlCard('table', this.tableCardsContainerDiv, view.tableCards);
 
+            //===================For Event Listening====================================
             //get all players' input cards
-            this.playerInputCards = document.querySelectorAll('#playerCardInput');
-            console.log(this.playerInputCards); //testing
+            this.player1InputCards = document.querySelectorAll('#player1CardInput');
+            this.player2InputCards = document.querySelectorAll('#player2CardInput');
 
             // EventListeners
-            this.playerInputCards.forEach(function (element) {
-                element.addEventListener('click', function () {
-                    controller.putCardOntable(element);
-                });
-            });
+            controller.addEventListenerOnTheCardsOfTurn();
         }
     };
 

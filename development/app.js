@@ -10,12 +10,9 @@
             cards: []
         },
         tableCards: [],
-        turn: "player1",
+        turn: 1,
         round: 1,
-        chosenCard: { 
-            name: null, 
-            value: null 
-        },
+        chosenCard: null,
         randomCard: null,
         deck: [
             { name: "1_of_clubs", value: 1 },
@@ -99,9 +96,6 @@
             }
 
 
-
-
-
             view.init();
         },
         createNewDeck: function () {
@@ -130,7 +124,6 @@
         spliceCardFromArray: function (card, array) {
             // var cardIndex = array.indexOf(card);
             var cardIndex = array.map(function (e) { return e.name; }).indexOf(card.name);
-            console.log(cardIndex); //testing
             array.splice(cardIndex, 1);
         },
         createHtmlCard: function (playerNum, containerDivSelector, array) {
@@ -144,8 +137,10 @@
                 var newtag = document.createElement('input');
                 if (playerNum === "table") {
                     newtag.id = "tableCardInput";
+                } else if (playerNum === 1) {
+                    newtag.id = "player1CardInput";
                 } else {
-                    newtag.id = "playerCardInput";
+                    newtag.id = "player2CardInput";
                 }
                 newtag.type = "image";
                 newtag.src = "images/" + array[i].name + ".png";
@@ -153,29 +148,48 @@
                 newtag.dataset.value = array[i].value;
                 newtag.alt = "Card" + (i + 1);
                 containerDiv.appendChild(newtag);
-                console.log(containerDiv); //testing
                 playedCardsContainer.appendChild(containerDiv);
             }
-        }, 
-        setChosenCard: function () {
-            
         },
         putCardOntable: function (card) {
-            // pushCardsToArray(card, model.tableCards);
-            console.dir(card);
-  
             // //convert data attributes to an object properties and assign them to chosenCard in model
-            model.chosenCard.name = card.dataset.name;
-            model.chosenCard.value = card.dataset.value;
-   
-            console.log(model.chosenCard);
+            var chosenCardName = card.dataset.name;
+            var chosenCardValue = card.dataset.value;
+            var chosenCard = {
+                name: chosenCardName,
+                value: chosenCardValue
+            };
+            model.chosenCard = chosenCard;
+
+            console.log(model.chosenCard); //testing
             controller.pushCardsToArray(model.chosenCard, model.tableCards);
 
-            console.table(model.tableCards);
-            controller.spliceCardFromArray(model.chosenCard, model.player1.cards)
+            console.table(model.tableCards);//testing
+            controller.spliceCardFromArray(model.chosenCard, model[`player${model.turn}`].cards);
 
-            console.table(model.player1.cards);
-            view.render();
+            console.table(model[`player${model.turn}`].cards); //testing
+        },
+        alternateTurn: function () {
+            if (model.turn === 1) {
+                model.turn = 2;
+            } else {
+                model.turn = 1;
+            }
+        },
+        addEventListenerOnTheCardsOfTurn: function () {
+            view[`player${model.turn}InputCards`].forEach(function (element) {
+                element.addEventListener('click', function (e) {
+                    // Do some stuff
+                    controller.putCardOntable(e.target);
+
+                    //change turn
+                    controller.alternateTurn();
+                    view.render();
+                });
+            });
+        },
+        compareChosenCardWithTableCards: function () {
+            
         }
 
     };
@@ -202,18 +216,13 @@
             controller.createHtmlCard(2, this.player2CardsContainerDiv, view.player2Cards);
             controller.createHtmlCard('table', this.tableCardsContainerDiv, view.tableCards);
 
+            //===================For Event Listening====================================
             //get all players' input cards
-            this.playerInputCards = document.querySelectorAll('#playerCardInput');
-            console.log(this.playerInputCards); //testing
+            this.player1InputCards = document.querySelectorAll('#player1CardInput');
+            this.player2InputCards = document.querySelectorAll('#player2CardInput');
 
             // EventListeners
-            this.playerInputCards.forEach(function (element) {
-                element.addEventListener('click', function () {
-                    controller.putCardOntable(element);
-                });
-            });
-
-
+            controller.addEventListenerOnTheCardsOfTurn();
         }
     };
 
