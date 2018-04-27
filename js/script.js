@@ -15,6 +15,7 @@
         round: 1,
         chosenCard: null,
         chosenCardScore: 0,
+        winningCards: [],
         randomCard: null,
         deck: [{ name: "1_of_clubs", value: 1 }, { name: "2_of_clubs", value: 2 }, { name: "3_of_clubs", value: 3 }, { name: "4_of_clubs", value: 4 }, { name: "5_of_clubs", value: 5 }, { name: "6_of_clubs", value: 6 }, { name: "7_of_clubs", value: 7 }, { name: "8_of_clubs", value: 8 }, { name: "9_of_clubs", value: 9 }, { name: "10_of_clubs", value: 10 }, { name: "jack_of_clubs", value: "J" }, { name: "king_of_clubs", value: "K" }, { name: "queen_of_clubs", value: "Q" }, { name: "1_of_diamonds", value: 1 }, { name: "2_of_diamonds", value: 2 }, { name: "3_of_diamonds", value: 3 }, { name: "4_of_diamonds", value: 4 }, { name: "5_of_diamonds", value: 5 }, { name: "6_of_diamonds", value: 6 }, { name: "7_of_diamonds", value: 7 }, { name: "8_of_diamonds", value: 8 }, { name: "9_of_diamonds", value: 9 }, { name: "10_of_diamonds", value: 10 }, { name: "jack_of_diamonds", value: "J" }, { name: "king_of_diamonds", value: "K" }, { name: "queen_of_diamonds", value: "Q" }, { name: "1_of_hearts", value: 1 }, { name: "2_of_hearts", value: 2 }, { name: "3_of_hearts", value: 3 }, { name: "4_of_hearts", value: 4 }, { name: "5_of_hearts", value: 5 }, { name: "6_of_hearts", value: 6 }, { name: "7_of_hearts", value: 7 }, { name: "8_of_hearts", value: 8 }, { name: "9_of_hearts", value: 9 }, { name: "10_of_hearts", value: 10 }, { name: "jack_of_hearts", value: "J" }, { name: "king_of_hearts", value: "K" }, { name: "queen_of_hearts", value: "Q" }, { name: "1_of_spades", value: 1 }, { name: "2_of_spades", value: 2 }, { name: "3_of_spades", value: 3 }, { name: "4_of_spades", value: 4 }, { name: "5_of_spades", value: 5 }, { name: "6_of_spades", value: 6 }, { name: "7_of_spades", value: 7 }, { name: "8_of_spades", value: 8 }, { name: "9_of_spades", value: 9 }, { name: "10_of_spades", value: 10 }, { name: "jack_of_spades", value: "J" }, { name: "king_of_spades", value: "K" }, { name: "queen_of_spades", value: "Q" }]
     };
@@ -106,7 +107,7 @@
                 return parsed;
             }
         },
-        putCardOntable: function (card) {
+        setChosenCardOnClick: function (card) {
             // //convert data attributes to an object properties and assign them to chosenCard in model
             var chosenCardName = card.dataset.name;
             var chosenCardValue = controller.convertToANumber(card.dataset.value);
@@ -115,14 +116,10 @@
                 value: chosenCardValue
             };
             model.chosenCard = chosenCard;
-
-            console.log(model.chosenCard); //testing
+        },
+        putCardOntable: function (card) {
             controller.pushCardsToArray(model.chosenCard, model.tableCards);
-
-            console.table(model.tableCards); //testing
             controller.spliceCardFromArray(model.chosenCard, model[`player${model.turn}`].cards);
-
-            console.table(model[`player${model.turn}`].cards); //testing
         },
         alternateTurn: function () {
             if (model.turn === 1) {
@@ -134,24 +131,32 @@
         addEventListenerOnTheCardsOfTurn: function () {
             view[`player${model.turn}InputCards`].forEach(function (element) {
                 element.addEventListener('click', function (e) {
-                    // Add card to table
-                    controller.putCardOntable(e.target);
+                    //assigning clicked card on model 
+                    controller.setChosenCardOnClick(e.target);
 
                     //calc score 
-                    controller.calcScore(model.turn);
+                    controller.calcScore();
+
+                    // Add card to table
+                    controller.putCardOntable();
+
                     //change turn
                     controller.alternateTurn();
                     controller.incrementRound();
+
                     view.render();
                 });
             });
         },
-        calcScore: function (num) {
-            var score = model[`player${num}`].score;
-            //====================================================
-            var tableArray = model.tableCards;
+        calcScore: function () {
 
+            var score = model[`player${model.turn}`].score;
+            var tableArray = model.tableCards;
+            console.log(tableArray);
             var chosenCard = model.chosenCard;
+            console.log(chosenCard);
+
+            var winningCards = [];
             //====================================================
 
 
@@ -277,6 +282,10 @@
                                         score = score;
                                         console.log("case 11");
                                     }
+
+            model[`player${model.turn}`].score = score;
+            console.log(model.player1.score);
+            console.log(model.player2.score);
         },
         displayTurn: function (turnContainer) {
             var turnContainerDiv = turnContainer;
@@ -285,6 +294,19 @@
         displayRound: function (roundContainer) {
             var roundContainerDiv = roundContainer;
             roundContainerDiv.innerHTML = "Round: " + model.round;
+        },
+        displayScore: function () {
+            console.log("turn: " + model.turn);
+            var previousTurn;
+            if (model.turn === 2) {
+                previousTurn = 1;
+            } else {
+                previousTurn = 2;
+            }
+            var scoreContainerDiv = view[`scoreContainerDivPlayer${previousTurn}`];
+
+            scoreContainerDiv.innerHTML = "Score: " + model[`player${previousTurn}`].score;
+            console.log("Score: " + model[`player${previousTurn}`].score);
         },
         incrementRound: function () {
             model.round++;
@@ -303,6 +325,8 @@
             //get turn & round
             this.turnContainerDiv = document.querySelector('#turn');
             this.roundContainerDiv = document.querySelector('#round');
+            this.scoreContainerDivPlayer1 = document.querySelector('#scorePlayer1');
+            this.scoreContainerDivPlayer2 = document.querySelector('#scorePlayer2');
 
             //render the view
             this.render();
@@ -329,6 +353,7 @@
             // Display turn & round
             controller.displayTurn(this.turnContainerDiv);
             controller.displayRound(this.roundContainerDiv);
+            controller.displayScore();
         }
     };
 
