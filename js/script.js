@@ -137,6 +137,8 @@
                     // Add card to table
                     controller.putCardOntable(e.target);
 
+                    //calc score 
+                    controller.calcScore(model.turn);
                     //change turn
                     controller.alternateTurn();
                     controller.incrementRound();
@@ -144,7 +146,138 @@
                 });
             });
         },
-        compareChosenCardWithTableCards: function () {},
+        calcScore: function (num) {
+            var score = model[`player${num}`].score;
+            //====================================================
+            var tableArray = model.tableCards;
+
+            var chosenCard = model.chosenCard;
+            //====================================================
+
+
+            var chosenCardValue = chosenCard.value; //chosen card value
+            var chosenCardName = chosenCard.name; // chosen card name
+
+            var valuesArray = tableArray.map(function (elem) {
+                return elem.value;
+            }); // array of values of table array
+
+            // Separating numbers from strings
+            var numbersArray = [];
+            var stringsArray = [];
+
+            //numbers
+            numbersArray = valuesArray.filter(function (elem) {
+                return !isNaN(elem);
+            });
+
+            // strings
+            stringsArray = valuesArray.filter(function (elem) {
+                return isNaN(elem);
+            });
+
+            // calculate sum of numbers array
+            const reducer = (accumulator, currentValue) => accumulator + currentValue;
+            var sumOfNumbersArray = numbersArray.reduce(reducer);
+
+            //===============Check possible pairs=================
+
+            function possiblePairs(chosenCard, array, i) {
+                var firstPair;
+                let result = null;
+                var subset = function subset_sum(numbers, target, partial) {
+                    let s, n, remaining;
+
+                    partial = partial || [];
+                    s = partial.reduce((a, b) => a + b, 0);
+
+                    if (s > target || partial.length > 4) return null;
+
+                    // check if the partial sum is equals to target
+                    if (s === target && partial.length == i) {
+                        if (!result) result = [];
+                        result.push(partial);
+                        console.log("%s=%s", partial.join("+"), target);
+                    }
+
+                    for (let i = 0; i < numbers.length; i++) {
+                        n = numbers[i];
+                        remaining = numbers.slice(i + 1);
+                        subset_sum(remaining, target, partial.concat([n]));
+                    }
+                    return result;
+                };
+                return subset(array, chosenCard);
+            }
+
+            var possiblePairs4 = possiblePairs(chosenCardValue, numbersArray, 4); //sum of 4 cards
+            var possiblePairs3 = possiblePairs(chosenCardValue, numbersArray, 3); //sum of 3 cards
+            var possiblePairs2 = possiblePairs(chosenCardValue, numbersArray, 2); //sum of 2 cards
+            var possiblePairs1 = possiblePairs(chosenCardValue, numbersArray, 1); //sum of 1 cards
+            console.log(possiblePairs1);
+            console.log(possiblePairs1 !== null);
+            //====================================================
+
+            //case card = sum of the table array & table array doesn't contain a NAN value  --> score = 10 + table.length
+            if (!isNaN(chosenCard.value) && chosenCardValue === sumOfNumbersArray && stringsArray.length === 0) {
+                score = score + 10 + numbersArray.length;
+                console.log("case 1");
+                console.log({ score });
+            }
+            // Case card = 7_of_diamonds or card is Jack it will collect all --> score = 1 + table.length
+            else if (chosenCardName === "7_of_diamonds" || chosenCardName.includes("jack")) {
+                    score = score + 1 + tableArray.length;
+                    console.log({ score });
+                    console.log("case 2");
+                }
+                // if card equals sum of four cards on the table
+                else if (!isNaN(chosenCard.value) && possiblePairs4 !== null) {
+                        score = score + 4 + 1;
+                        console.log("case 3");
+                        console.log({ score });
+                        if (possiblePairs1 !== null) {
+                            score = score + 1;
+                            console.log("case 4");
+                        }
+                    }
+                    // if card equals sum of 3 cards on the table
+                    else if (!isNaN(chosenCard.value) && possiblePairs3 !== null) {
+                            score = score + 3 + 1;
+                            console.log("case 5");
+                            console.log({ score });
+                            if (possiblePairs1 !== null) {
+                                score = score + 1;
+                                console.log("case 6");
+                            }
+                        }
+                        // if card equals sum of 2 cards on the table
+                        else if (!isNaN(chosenCard.value) && possiblePairs2 !== null) {
+                                score = score + 2 + 1;
+                                console.log({ score });
+                                console.log("case 7");
+                                if (possiblePairs1 !== null) {
+                                    score = score + 1;
+                                    console.log('hamada');
+                                    console.log({ score });
+                                    console.log("case 8");
+                                }
+                            }
+                            // if card equals sum of 1 card on the table
+                            else if (!isNaN(chosenCard.value) && possiblePairs1 !== null) {
+                                    score = score + 1 + 1;
+                                    console.log({ score });
+                                    console.log("case 9");
+                                }
+                                // if card is a string and exist on table
+                                else if (isNaN(chosenCard.value) && stringsArray.indexOf(chosenCardValue) !== -1) {
+                                        score = score + 1 + 1;
+                                        console.log({ score });
+                                        console.log("case 10");
+                                    } else {
+                                        score = score;
+                                        console.log("case 11");
+                                    }
+        },
         displayTurn: function (turnContainer) {
             var turnContainerDiv = turnContainer;
             turnContainerDiv.innerHTML = "Turn: Player" + model.turn;
@@ -193,7 +326,7 @@
             // EventListeners
             controller.addEventListenerOnTheCardsOfTurn();
 
-            // Display turn
+            // Display turn & round
             controller.displayTurn(this.turnContainerDiv);
             controller.displayRound(this.roundContainerDiv);
         }
