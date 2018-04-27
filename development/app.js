@@ -14,7 +14,8 @@
         round: 1,
         chosenCard: null,
         chosenCardScore: 0,
-        winningCards: [],
+        winningtableCards: [],
+        winningChosenCard: [],
         randomCard: null,
         deck: [
             { name: "1_of_clubs", value: 1 },
@@ -197,35 +198,55 @@
                     //change turn
                     controller.alternateTurn();
                     controller.incrementRound();
-                    
+
                     view.render();
                 });
             });
         },
+        findPossiblePairs: function (chosenCard, array, i) {
+            var firstPair;
+            let result = null;
+            var subset = function subset_sum(numbers, target, partial) {
+                let s, n, remaining;
+
+                partial = partial || [];
+                s = partial.reduce((a, b) => a + b, 0);
+
+                if (s > target || partial.length > 4) return null;
+
+                // check if the partial sum is equals to target
+                if (s === target && partial.length == i) {
+                    if (!result) result = [];
+                    result.push(partial);
+                    // console.log("%s=%s", partial.join("+"), target);
+                }
+
+                for (let i = 0; i < numbers.length; i++) {
+                    n = numbers[i];
+                    remaining = numbers.slice(i + 1);
+                    subset_sum(remaining, target, partial.concat([n]));
+                }
+                return result;
+            }
+            return subset(array, chosenCard);
+        },
         calcScore: function () {
-            
+
             var score = model[`player${model.turn}`].score;
             var tableArray = model.tableCards;
-            console.log(tableArray);
             var chosenCard = model.chosenCard;
-            console.log(chosenCard);
 
-            var winningCards = [];
             //====================================================
-
 
             var chosenCardValue = chosenCard.value; //chosen card value
             var chosenCardName = chosenCard.name; // chosen card name
 
             var valuesArray = tableArray.map(function (elem) { return elem.value; }); // array of values of table array
-
             // Separating numbers from strings
             var numbersArray = [];
             var stringsArray = [];
-
             //numbers
             numbersArray = valuesArray.filter(function (elem) { return !isNaN(elem); });
-
             // strings
             stringsArray = valuesArray.filter(function (elem) { return isNaN(elem); });
 
@@ -236,40 +257,11 @@
 
             //===============Check possible pairs=================
 
-            function possiblePairs(chosenCard, array, i) {
-                var firstPair;
-                let result = null;
-                var subset = function subset_sum(numbers, target, partial) {
-                    let s, n, remaining;
+            var PossiblePairs4 = controller.findPossiblePairs(chosenCardValue, numbersArray, 4); //sum of 4 cards
+            var PossiblePairs3 = controller.findPossiblePairs(chosenCardValue, numbersArray, 3); //sum of 3 cards
+            var PossiblePairs2 = controller.findPossiblePairs(chosenCardValue, numbersArray, 2); //sum of 2 cards
+            var PossiblePairs1 = controller.findPossiblePairs(chosenCardValue, numbersArray, 1); //sum of 1 cards
 
-                    partial = partial || [];
-                    s = partial.reduce((a, b) => a + b, 0);
-
-                    if (s > target || partial.length > 4) return null;
-
-                    // check if the partial sum is equals to target
-                    if (s === target && partial.length == i) {
-                        if (!result) result = [];
-                        result.push(partial);
-                        console.log("%s=%s", partial.join("+"), target);
-                    }
-
-                    for (let i = 0; i < numbers.length; i++) {
-                        n = numbers[i];
-                        remaining = numbers.slice(i + 1);
-                        subset_sum(remaining, target, partial.concat([n]));
-                    }
-                    return result;
-                }
-                return subset(array, chosenCard);
-            }
-
-            var possiblePairs4 = possiblePairs(chosenCardValue, numbersArray, 4); //sum of 4 cards
-            var possiblePairs3 = possiblePairs(chosenCardValue, numbersArray, 3); //sum of 3 cards
-            var possiblePairs2 = possiblePairs(chosenCardValue, numbersArray, 2); //sum of 2 cards
-            var possiblePairs1 = possiblePairs(chosenCardValue, numbersArray, 1); //sum of 1 cards
-            console.log(possiblePairs1);
-            console.log(possiblePairs1 !== null);
             //====================================================
 
             //case card = sum of the table array & table array doesn't contain a NAN value  --> score = 10 + table.length
@@ -285,31 +277,31 @@
                 console.log("case 2");
             }
             // if card equals sum of four cards on the table
-            else if (!isNaN(chosenCard.value) && possiblePairs4 !== null) {
+            else if (!isNaN(chosenCard.value) && PossiblePairs4 !== null) {
                 score = score + 4 + 1;
                 console.log("case 3");
                 console.log({ score });
-                if (possiblePairs1 !== null) {
+                if (PossiblePairs1 !== null) {
                     score = score + 1;
                     console.log("case 4");
                 }
             }
             // if card equals sum of 3 cards on the table
-            else if (!isNaN(chosenCard.value) && possiblePairs3 !== null) {
+            else if (!isNaN(chosenCard.value) && PossiblePairs3 !== null) {
                 score = score + 3 + 1;
                 console.log("case 5");
                 console.log({ score });
-                if (possiblePairs1 !== null) {
+                if (PossiblePairs1 !== null) {
                     score = score + 1;
                     console.log("case 6");
                 }
             }
             // if card equals sum of 2 cards on the table
-            else if (!isNaN(chosenCard.value) && possiblePairs2 !== null) {
+            else if (!isNaN(chosenCard.value) && PossiblePairs2 !== null) {
                 score = score + 2 + 1;
                 console.log({ score });
                 console.log("case 7");
-                if (possiblePairs1 !== null) {
+                if (PossiblePairs1 !== null) {
                     score = score + 1;
                     console.log('hamada');
                     console.log({ score });
@@ -317,7 +309,7 @@
                 }
             }
             // if card equals sum of 1 card on the table
-            else if (!isNaN(chosenCard.value) && possiblePairs1 !== null) {
+            else if (!isNaN(chosenCard.value) && PossiblePairs1 !== null) {
                 score = score + 1 + 1;
                 console.log({ score });
                 console.log("case 9");
@@ -331,12 +323,27 @@
             else {
                 score = score;
                 console.log("case 11");
-
             }
 
             model[`player${model.turn}`].score = score;
-            console.log(model.player1.score);
-            console.log(model.player2.score);
+        },
+        convertWinningCardsToObjects: function (winningPairs, tableArray) {
+            var table = [
+                { name: "8_of_spades", value: 8 },
+                { name: "9_of_spades", value: 9 },
+                { name: "10_of_spades", value: 10 },
+                { name: "jack_of_spades", value: "J" }
+            ];
+
+            var winningPairs = [10, 9, "J"];
+
+            var winningPairsObjArray = winningPairs.map(function (item) {
+                var cardObj =  table.filter(function (elem) { return elem.value === item });
+                return cardObj[0];
+            });
+            console.log(winningPairsObjArray);
+            model.winningCards = [...winningPairsObjArray];
+            console.log(model.winningCards);
         },
         displayTurn: function (turnContainer) {
             var turnContainerDiv = turnContainer;
@@ -347,7 +354,6 @@
             roundContainerDiv.innerHTML = "Round: " + model.round;
         },
         displayScore: function () {
-            console.log("turn: "+ model.turn);
             var previousTurn;
             if (model.turn === 2) {
                 previousTurn = 1;
@@ -357,7 +363,6 @@
             var scoreContainerDiv = view[`scoreContainerDivPlayer${previousTurn}`];
 
             scoreContainerDiv.innerHTML = "Score: " + model[`player${previousTurn}`].score;
-            console.log("Score: " + model[`player${previousTurn}`].score);
         },
         incrementRound: function () {
             model.round++;
